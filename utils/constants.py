@@ -6,8 +6,10 @@ from pathlib import Path
 
 DOCS_DIR = Path("docs")
 llm_model_path = "llm_qwen\qwen2.5-1.5b-instruct.Q4_K_M.gguf"
+llm_model_path = "llm_qwen\qwen2.5-7b-instruct-q4_k_m.gguf"
 rag_tool_model_path = "paraphrase-MiniLM"
 FAISS_DIR = "faiss_rag"
 INDEX_PATH = f"{FAISS_DIR}/index.bin"
 META_PATH = f"{FAISS_DIR}/metadata.json"
 FILE_INDEX_PATH = f"{FAISS_DIR}/file_index.json"
+score_threshold = 0.75
