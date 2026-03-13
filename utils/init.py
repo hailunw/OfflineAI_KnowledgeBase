@@ -68,8 +68,7 @@ def init_rag_db():
     vectors = []
     for question in questions:
         vector = text_2_vector(question, rag_tool)
-        print(f"question: {question}")
-        print(f"vector shape: {vector.shape}")
+
         vectors.append(vector[0])  # 关键
     vectors = np.array(vectors).astype("float32")
     if global_index is None:
