@@ -1,0 +1,7 @@
+/paraphrase-MiniLM/1_Pooling/
+/paraphrase-MiniLM/config.json
+/paraphrase-MiniLM/modules.json
+/paraphrase-MiniLM/pytorch_model.bin
+/paraphrase-MiniLM/sentence_bert_config.json
+/paraphrase-MiniLM/tokenizer.json
+/paraphrase-MiniLM/tokenizer_config.json
