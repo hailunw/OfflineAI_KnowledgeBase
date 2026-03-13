@@ -1,4 +1,5 @@
 import os
+from time import perf_counter
 
 from utils.constants import score_threshold
 from utils.init import init_rag_tool, init_rag_db, init_llm
@@ -17,6 +18,7 @@ def main_conversation(rag_tool, global_index, global_metadata, llm_model):
         query = input("👤 ").strip()
         if query in ["exit", "quit", "退出"]:
             break
+        start_time = perf_counter()
         prompt = build_query_prompt(query)
         llm_query = ""
         for token in llm_model.create_completion(
@@ -30,7 +32,8 @@ def main_conversation(rag_tool, global_index, global_metadata, llm_model):
         vect = text_2_vector(llm_query, rag_tool)
         score, results = rag_retrieval(vect, global_index, global_metadata)
 
-        print(f"可信度: {score}")
+        elapsed_time = perf_counter() - start_time
+        print(f"可信度: {score:.2f}, 用时: {elapsed_time:.4f} 秒")
         if results and score > score_threshold:
             print(f"📚 知识库答案: {results}")
         else:
