@@ -29,8 +29,8 @@ def main_conversation(rag_tool, global_index, global_metadata, llm_model):
             llm_query += token["choices"][0]["text"]
         llm_query = llm_query.strip()
         print(f"🔧 问题: {llm_query}")
-        vect = text_2_vector(llm_query, rag_tool)
-        score, results = rag_retrieval(vect, global_index, global_metadata)
+        vect_quest = text_2_vector(llm_query, rag_tool)
+        score, results = rag_retrieval(vect_quest,llm_query, global_index, global_metadata)
 
         elapsed_time = perf_counter() - start_time
         print(f"可信度: {score:.2f}, 用时: {elapsed_time:.4f} 秒")
