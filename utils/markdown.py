@@ -2,8 +2,7 @@ import hashlib
 import json
 import os
 import re
-
-from utils.constants import FILE_INDEX_PATH, DOCS_DIR
+from utils.constants import FILE_INDEX_PATH, DOCS_DIR, markdown_split_pattern
 
 
 # ===============================
@@ -13,27 +12,20 @@ class MarkdownSplitter:
 
     def split(self, text):
         text = text.replace('\r\n', '\n').replace('\r', '\n')
-
-        pattern = re.compile(r'标题:\s*(.*?)\n内容:\s*(.*?)(?=\n标题:|\Z)',re.S)
-
+        pattern = re.compile(markdown_split_pattern, re.S)
         matches = pattern.findall(text)
-
         results = []
-
         for q, a in matches:
-
             results.append({
                 "question": q.strip(),
                 "answer": a.strip()
             })
-
         return results
 
 
     def split_documents(self, documents):
         all_chunks = []
         for doc in documents:
-
             entries = self.split(doc.page_content)
             for i, entry in enumerate(entries):
                 all_chunks.append({
