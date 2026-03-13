@@ -1,19 +1,12 @@
-# ------------------- 核心改进：仅对question做分词提取关键字 -------------------
-# 仅从question中提取核心关键字，不关联answer，简化逻辑
-from jieba import posseg
-
-
 def extract_keywords_from_question(question):
-    """仅对question分词，提取核心关键字（过滤无意义词汇）"""
-
-    # 1. 分词（优先提取名词、专业术语，过滤疑问词、虚词）
-    words = posseg.cut(question)
-    keywords = []
-    # 过滤无意义词（可根据业务场景补充）
+    import jieba
+    from jieba import posseg
     stop_words = ["的", "是", "什么", "如何", "怎么", "哪些", "一个", "用于", "可以", "实现", "如何做", "怎么弄"]
-    # 2. 筛选核心词汇：名词（n开头）、专业术语，长度≥2，非停用词
+    # 关键修复：转为列表，避免生成器迭代失效
+    words = list(posseg.cut(question))
+    print(f"bbbbbbb {words}")  # 保留你的打印语句，查看分词结果
+    keywords = []
     for word, flag in words:
         if flag.startswith("n") and word not in stop_words and len(word) >= 2:
             keywords.append(word)
-    # 3. 去重，避免冗余，取前5个核心关键字（足够支撑匹配，不占用过多资源）
     return list(set(keywords))[:5]
