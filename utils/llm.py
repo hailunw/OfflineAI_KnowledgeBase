@@ -19,7 +19,7 @@ def build_answer_prompt(input_query):
     prompt = f"""<|im_start|>system
             你是一名知识渊博的知识库专家。<|im_end|>
             <|im_start|>user
-            请阅读下面的问句{input_query}，并给出长度在十个字之内的答案。
+            请针对问句{input_query}，根据常识给出长度在20个字之内的有意义的答案。
             <|im_end|>
             <|im_start|>assistant
             """
