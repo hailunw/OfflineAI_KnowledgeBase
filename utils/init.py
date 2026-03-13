@@ -10,7 +10,7 @@ from langchain_community.document_loaders import TextLoader
 from llama_cpp import Llama
 from sentence_transformers import SentenceTransformer
 
-from utils.constants import llm_model_path, FILE_INDEX_PATH, FAISS_DIR, META_PATH, INDEX_PATH, sentence_transform_model
+from utils.constants import llm_model_path, FILE_INDEX_PATH, FAISS_DIR, META_PATH, INDEX_PATH, rag_tool_model_path
 from utils.markdown import MarkdownSplitter, detect_changed_files
 from utils.rag_tool import text_2_vector
 
@@ -25,7 +25,7 @@ def init_rag_tool():
 
     if rag_tool is None:
         rag_tool = SentenceTransformer(
-            sentence_transform_model,
+            rag_tool_model_path,
             device="cpu",
             cache_folder="./cache"
         )
