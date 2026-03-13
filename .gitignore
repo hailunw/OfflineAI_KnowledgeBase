@@ -5,3 +5,4 @@
 /paraphrase-MiniLM/sentence_bert_config.json
 /paraphrase-MiniLM/tokenizer.json
 /paraphrase-MiniLM/tokenizer_config.json
+*.pyc
