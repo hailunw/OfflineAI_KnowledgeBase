@@ -29,8 +29,8 @@ def main_conversation(rag_tool, global_index, global_metadata, llm_model):
         print(f"🔧 问题: {llm_query}")
         vect = text_2_vector(llm_query, rag_tool)
         score, results = rag_retrieval(vect, global_index, global_metadata)
-        print(score)
 
+        print(f"可信度: {score}")
         if results and score > score_threshold:
             print(f"📚 知识库答案: {results}")
         else:
