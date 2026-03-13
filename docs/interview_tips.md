@@ -1,18 +1,14 @@
 标题: Self Introduction
 内容: 
-Good morning. My name is Hailun Wang.
+  Good morning. My name is Hailun Wang.
 
-I graduated in 2008 with a Bachelor's degree in Software Engineering（Japanese）.
-During my university studies, I also passed the CET-6 English exam.
-
-After graduation, I worked at multinational companies and gained experience in Data Warehousing, Business Intelligence, and backend development using Python and Java.
-During my career, I also took the TOEIC exam and obtained a score of 775.
-
-After coming to Japan, I have been involved in several AI-related projects.
-For example,
-I used SentenceTransformer to convert knowledge base documents into vector embeddings,
-stored the vectors in ChromaDB, and integrated large language models to build conversational systems that allow users to interact with the knowledge base.
-
+  I graduated in 2008 with a Bachelor's degree in Software Engineering (Japanese Track) and passed the CET-6 exam during university.
+  
+  After graduation, I worked at multinational companies, gaining experience in Data Warehousing, BI, and backend development with Python and Java. 
+  I also scored 775 on the TOEIC exam.
+  
+After moving to Japan, I worked on AI projects, including: leveraging SentenceTransformer to generate vector embeddings from knowledge base documents, 
+storing them in ChromaDB, and integrating LLMs to build a natural language conversational system for the knowledge base.
 
 标题: AI离线AI知识库框架
 内容: 
