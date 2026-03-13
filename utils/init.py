@@ -38,12 +38,12 @@ def init_rag_tool():
 # ===============================
 
 def init_rag_db():
-    print("🔍 初始化RAG知识库")
+
     if os.path.exists(INDEX_PATH) and os.path.exists(META_PATH):
         global_index = faiss.read_index(INDEX_PATH)
         with open(META_PATH, "r", encoding="utf-8") as f:
             global_metadata = json.load(f)
-        print(f"✅ 已加载FAISS索引: {global_index.ntotal}")
+        print(f"✅ 初始化RAG知识库，已加载FAISS索引: {global_index.ntotal}")
     else:
         global_index = None
         global_metadata = []
@@ -103,7 +103,7 @@ def init_rag_db():
 # ===============================
 
 def init_llm():
-    print("🤖 加载 离线版AI")
+    print("🤖 加载 离线版LLM")
 
     # llm = Llama(
     #     model_path=llm_model_path,
