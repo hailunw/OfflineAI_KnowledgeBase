@@ -105,13 +105,22 @@ def init_rag_db():
 def init_llm():
     print("🤖 加载 离线版AI")
 
+    # llm = Llama(
+    #     model_path=llm_model_path,
+    #     n_ctx=1024,
+    #     n_threads=os.cpu_count(),
+    #     n_gpu_layers=0,
+    #     temperature=0,
+    #     verbose=False
+    # )
     llm = Llama(
-        model_path=llm_model_path,
-        n_ctx=1024,
-        n_threads=os.cpu_count(),
-        n_gpu_layers=0,
-        temperature=0,
-        verbose=False
+        model_path=llm_model_path,  # 替换为实际路径
+        n_ctx=512,  # CPU推荐256/512，GPU可设2048
+        n_threads=os.cpu_count(),  # 拉满CPU核心
+        n_gpu_layers=0,  # 纯CPU=0，有GPU填≥1
+        temperature=0.0,  # 0=最快/确定，0.3=兼顾灵活
+        verbose=False,  # 关闭冗余日志
+        f16_kv=True,  # 提速+省内存（必开）
+        use_mlock=True,  # 锁定模型到内存（纯CPU必开）
     )
-
     return llm
