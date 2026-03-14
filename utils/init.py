@@ -24,10 +24,11 @@ rag_tool = None
 def init_rag_tool():
     global rag_tool
     device_type = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"CPU Type: {device_type}")
     if rag_tool is None:
         rag_tool = SentenceTransformer(
             rag_tool_model_path,
-            device=device_type, # cuda cpu
+            device=device_type,  # cuda cpu
             cache_folder="./cache"
         )
 
@@ -69,7 +70,6 @@ def init_rag_db():
     # ------------------- 彻底修复：init_rag_db内的分词函数（杜绝迭代报错） -------------------
     def extract_keywords_from_question(question):
         """仅对question分词，提取核心关键字（过滤无意义词汇）- 彻底修复迭代解包报错"""
-        import jieba
         from jieba import posseg
         stop_words = ["的", "是", "什么", "如何", "怎么", "哪些", "一个", "用于", "可以", "实现", "如何做", "怎么弄"]
         # 新增：格式校验+转换，避免传入非字符串（如numpy数组）导致decode报错
@@ -134,29 +134,40 @@ def init_rag_db():
     print(f"✅ 新增 {len(vectors)} QA向量（分词函数彻底修复，无迭代解包报错）")
     return global_index, global_metadata
 
+
 # ===============================
 # LLM
 # ===============================
 
 def init_llm():
-    print("🤖 加载 离线版LLM")
+    # 判断 GPU
+    use_gpu = torch.cuda.is_available()
 
-    # llm = Llama(
-    #     model_path=llm_model_path,
-    #     n_ctx=1024,
-    #     n_threads=os.cpu_count(),
-    #     n_gpu_layers=0,
-    #     temperature=0,
-    #     verbose=False
-    # )
-    llm = Llama(
-        model_path=llm_model_path,  # 替换为实际路径
-        n_ctx=512,  # CPU推荐256/512，GPU可设2048
-        n_threads=os.cpu_count(),  # 拉满CPU核心
-        n_gpu_layers=0,  # 纯CPU=0，有GPU填≥1
-        temperature=0.0,  # 0=最快/确定，0.3=兼顾灵活
-        verbose=False,  # 关闭冗余日志
-        f16_kv=True,  # 提速+省内存（必开）
-        use_mlock=True,  # 锁定模型到内存（纯CPU必开）
-    )
+    if use_gpu:
+        print("🚀 检测到 GPU:", torch.cuda.get_device_name(0))
+        llm = Llama(
+            model_path=llm_model_path,
+            n_ctx=512,
+            n_threads=os.cpu_count(),
+            n_gpu_layers=20,  # MX150 推荐 15~20
+            temperature=0.0,
+            top_p=0.95,
+            f16_kv=True,
+            verbose=False
+        )
+
+    else:
+        print("💻 未检测到 GPU，使用 CPU 推理")
+
+        llm = Llama(
+            model_path=llm_model_path,
+            n_ctx=512,
+            n_threads=os.cpu_count(),
+            n_gpu_layers=0,
+            temperature=0.0,
+            top_p=0.95,
+            f16_kv=True,
+            verbose=False
+        )
+
     return llm

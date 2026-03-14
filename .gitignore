@@ -6,3 +6,9 @@
 /paraphrase-MiniLM/tokenizer.json
 /paraphrase-MiniLM/tokenizer_config.json
 *.pyc
+/faiss_rag/file_index.json
+/faiss_rag/index.bin
+/faiss_rag/metadata.json
+/llm_qwen/qwen2.5-7b-instruct-q4_k_m.gguf
+/paraphrase-MiniLM/special_tokens_map.json
+/paraphrase-MiniLM/vocab.txt
