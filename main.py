@@ -86,7 +86,7 @@ def main_conversation(rag_tool, global_index, global_metadata, llm_model):
             print("🤖 LLM答案: ", end="", flush=True)
             for token in llm_model.create_completion(
                     prompt=prompt,
-                    max_tokens=64,  # MX150显存优化
+                    max_tokens=48,  # MX150显存优化
                     stream=True,
                     temperature=0.0,
                     top_p=0.95

@@ -11,7 +11,8 @@ from langchain_community.document_loaders import TextLoader
 from llama_cpp import Llama
 from sentence_transformers import SentenceTransformer
 
-from utils.constants import llm_model_path, FILE_INDEX_PATH, FAISS_DIR, META_PATH, INDEX_PATH, rag_tool_model_path
+from utils.constants import llm_model_path, FILE_INDEX_PATH, FAISS_DIR, META_PATH, INDEX_PATH, rag_tool_model_path, \
+    gpu_n_threads, cpu_n_threads
 from utils.markdown import MarkdownSplitter, detect_changed_files
 from utils.rag_tool import text_2_vector
 
@@ -153,8 +154,8 @@ def init_llm():
         llm = Llama(
             model_path=llm_model_path,
             n_ctx=256,  # 解决n_ctx警告，适配MX150显存
-            n_threads=4,  # MX150搭配CPU最优线程数（仅初始化时配置）
-            n_gpu_layers=10 if mx150_detected else 20,  # GPU层仅初始化时配置
+            n_threads=gpu_n_threads,  # MX150搭配CPU最优线程数（仅初始化时配置）
+            n_gpu_layers=12 if mx150_detected else 20,  # GPU层仅初始化时配置
             temperature=0.0,
             top_p=0.95,
             f16_kv=True,  # 启用半精度加速GPU
@@ -165,8 +166,8 @@ def init_llm():
         llm = Llama(
             model_path=llm_model_path,
             n_ctx=256,
-            n_threads=os.cpu_count(),
-            n_gpu_layers=0,
+            n_threads=cpu_n_threads,
+            n_gpu_layers=20,
             temperature=0.0,
             top_p=0.95,
             f16_kv=True,

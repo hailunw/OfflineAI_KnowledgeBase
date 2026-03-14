@@ -1,3 +1,4 @@
+import os
 import re
 from pathlib import Path
 
@@ -18,4 +19,7 @@ FILE_INDEX_PATH = f"{FAISS_DIR}/file_index.json"
 score_threshold = 0.60
 
 markdown_split_pattern = r'标题:\s*(.*?)\n内容:\s*(.*?)(?=\n标题:|\Z)'
+
+cpu_n_threads = os.cpu_count(),
+gpu_n_threads = 2
 
