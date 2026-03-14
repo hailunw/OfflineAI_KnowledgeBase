@@ -12,3 +12,6 @@
 /llm_qwen/qwen2.5-7b-instruct-q4_k_m.gguf
 /paraphrase-MiniLM/special_tokens_map.json
 /paraphrase-MiniLM/vocab.txt
+/paraphrase-MiniLM/config_sentence_transformers.json
+/paraphrase-MiniLM/model.safetensors
+/paraphrase-MiniLM/README.md

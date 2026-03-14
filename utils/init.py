@@ -140,28 +140,31 @@ def init_rag_db():
 # ===============================
 
 def init_llm():
-    # 判断 GPU
+    """初始化LLM（MX150 GPU适配，低版本llama-cpp兼容）"""
+    # MX150 GPU检测
     use_gpu = torch.cuda.is_available()
+    mx150_detected = False
+    if use_gpu:
+        gpu_name = torch.cuda.get_device_name(0)
+        mx150_detected = "MX150" in gpu_name
 
     if use_gpu:
-        print("🚀 检测到 GPU:", torch.cuda.get_device_name(0))
+        print(f"🚀 使用GPU推理（{gpu_name}）- MX150适配版")
         llm = Llama(
             model_path=llm_model_path,
-            n_ctx=512,
-            n_threads=os.cpu_count(),
-            n_gpu_layers=20,  # MX150 推荐 15~20
+            n_ctx=256,  # 解决n_ctx警告，适配MX150显存
+            n_threads=4,  # MX150搭配CPU最优线程数（仅初始化时配置）
+            n_gpu_layers=10 if mx150_detected else 20,  # GPU层仅初始化时配置
             temperature=0.0,
             top_p=0.95,
-            f16_kv=True,
-            verbose=False
+            f16_kv=True,  # 启用半精度加速GPU
+            verbose=False  # 关闭冗余日志
         )
-
     else:
-        print("💻 未检测到 GPU，使用 CPU 推理")
-
+        print("💻 未检测到GPU，使用CPU推理")
         llm = Llama(
             model_path=llm_model_path,
-            n_ctx=512,
+            n_ctx=256,
             n_threads=os.cpu_count(),
             n_gpu_layers=0,
             temperature=0.0,
