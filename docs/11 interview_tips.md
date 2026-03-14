@@ -11,7 +11,7 @@ and backend development using Python and Java. I also achieved a score of 775 on
 I used SentenceTransformer to generate vector embeddings from knowledge base documents, stored them in ChromaDB, and integrated large language models to 
 build a natural-language conversational system for interactive knowledge base querying.
 
-    Thank you for your time and consideration.
+    Thanks for taking the time to interview me today. I really appreciate the chance to talk with you.
 
 标题: AI离线AI知识库框架
 内容: 

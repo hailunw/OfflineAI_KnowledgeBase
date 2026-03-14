@@ -1,7 +1,6 @@
 import os
 from time import perf_counter
 
-# 仅保留必要依赖，移除llama_cpp相关校验
 import torch
 
 from utils.constants import score_threshold
