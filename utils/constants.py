@@ -7,8 +7,8 @@ from pathlib import Path
 # ===============================
 
 DOCS_DIR = Path("docs")
-# llm_model_path = r"llm_qwen\qwen2.5-1.5b-instruct.Q4_K_M.gguf"
-llm_model_path = r"llm_qwen\qwen2.5-7b-instruct-q4_k_m.gguf"
+llm_model_path = r"llm_qwen\qwen2.5-3b-instruct-q4_k_m.gguf"
+# llm_model_path = r"llm_qwen\qwen2.5-7b-instruct-q4_k_m.gguf"
 rag_tool_model_path = "paraphrase-MiniLM"
 # rag_tool_model_path = "paraphrase-multilingual-MiniLM-L12-v2"
 

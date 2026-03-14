@@ -15,3 +15,4 @@
 /paraphrase-MiniLM/config_sentence_transformers.json
 /paraphrase-MiniLM/model.safetensors
 /paraphrase-MiniLM/README.md
+/llm_qwen/qwen2.5-3b-instruct-q4_k_m.gguf
