@@ -6,6 +6,7 @@ import os
 
 import faiss
 import numpy as np
+import torch
 from langchain_community.document_loaders import TextLoader
 from llama_cpp import Llama
 from sentence_transformers import SentenceTransformer
@@ -22,11 +23,11 @@ rag_tool = None
 
 def init_rag_tool():
     global rag_tool
-
+    device_type = "cuda" if torch.cuda.is_available() else "cpu"
     if rag_tool is None:
         rag_tool = SentenceTransformer(
             rag_tool_model_path,
-            device="cpu",
+            device=device_type, # cuda cpu
             cache_folder="./cache"
         )
 
