@@ -16,7 +16,7 @@ FAISS_DIR = "faiss_rag"
 INDEX_PATH = f"{FAISS_DIR}/index.bin"
 META_PATH = f"{FAISS_DIR}/metadata.json"
 FILE_INDEX_PATH = f"{FAISS_DIR}/file_index.json"
-score_threshold = 0.60
+score_threshold = 0.70
 
 markdown_split_pattern = r'标题:\s*(.*?)\n内容:\s*(.*?)(?=\n标题:|\Z)'
 
