@@ -1,4 +1,4 @@
-/paraphrase-MiniLM/*
+/sentence-transformers/paraphrase-MiniLM/*
 *.pyc
 /faiss_rag/*
 /llm_qwen/*
