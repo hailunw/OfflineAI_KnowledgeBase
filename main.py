@@ -1,6 +1,9 @@
 import os
 from time import perf_counter
 
+# ===============================
+# GPU适配初始化（纯兼容性版本）
+# ===============================
 import torch
 
 from utils.constants import score_threshold
@@ -10,27 +13,36 @@ from utils.rag_db import rag_retrieval
 from utils.rag_tool import text_2_vector
 
 
-# ===============================
-# GPU适配初始化（纯兼容性版本）
-# ===============================
 def check_gpu_availability():
-    """校验MX150 GPU是否可用（无任何高版本依赖）"""
+    """校验MX150 GPU是否可用（无任何高版本依赖，鲁棒性优化）"""
+    # 核心修复1：先判断CUDA是否可用，再获取显卡名称（避免索引越界）
     cuda_available = torch.cuda.is_available()
-    gpu_name = torch.cuda.get_device_name(0) if cuda_available else "无GPU"
-    mx150_detected = cuda_available and "MX150" in gpu_name
+    gpu_name = "无GPU"
+    mx150_detected = False
 
+    if cuda_available:
+        try:
+            # 修复2：加异常捕获（避免多GPU/权限问题导致报错）
+            gpu_name = torch.cuda.get_device_name(0)
+            mx150_detected = "MX150" in gpu_name.upper()  # 修复3：大小写不敏感（如mx150/MX150都能检测）
+        except Exception as e:
+            print(f"⚠️  获取显卡名称失败：{e}，默认按非MX150 GPU处理")
+            gpu_name = "未知GPU型号"
+
+    # 格式化输出
     print(f"📌 GPU状态检测：")
     print(f"   - CUDA可用: {cuda_available}")
     print(f"   - 显卡型号: {gpu_name}")
 
+    # 逻辑修复：分场景返回
     if mx150_detected:
-        print(f"   - 适配MX150：显存限制2G，已在LLM初始化时配置GPU")
+        print(f"   - ✅ 适配MX150：显存限制2G，已在LLM初始化时配置GPU")
         return True
     elif cuda_available:
-        print(f"   - 非MX150显卡，GPU已在初始化时启用")
+        print(f"   - ✅ 非MX150显卡（{gpu_name}），GPU已在初始化时启用")
         return True
     else:
-        print(f"⚠️  未检测到可用GPU，使用CPU推理")
+        print(f"   - ⚠️  未检测到可用GPU，使用CPU推理")
         return False
 
 

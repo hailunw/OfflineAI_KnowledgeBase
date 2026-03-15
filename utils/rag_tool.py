@@ -2,7 +2,6 @@
 # Embedding
 # ===============================
 
-
 def text_2_vector(text, rag_tool):
     vector = rag_tool.encode(
         text,

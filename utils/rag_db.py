@@ -11,6 +11,3 @@ def rag_retrieval(query_vector, llm_query, global_index, global_metadata, top_k=
     if idx == -1:
         return None
     return score, global_metadata[idx]["question"] + "\n\n" + global_metadata[idx]["answer"]
-
-
-

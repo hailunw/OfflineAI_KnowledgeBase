@@ -1,10 +1,4 @@
-# ===============================
-# RAG Tool
-# ===============================
-import json
-import os
-
-import faiss
+import json,os,faiss
 import numpy as np
 import torch
 from langchain_community.document_loaders import TextLoader
@@ -14,8 +8,12 @@ from sentence_transformers import SentenceTransformer
 from utils.constants import llm_model_path, FILE_INDEX_PATH, FAISS_DIR, META_PATH, INDEX_PATH, rag_tool_model_path, \
     gpu_n_threads, cpu_n_threads
 from utils.markdown import MarkdownSplitter, detect_changed_files
+from utils.misc_util import extract_keywords_from_question
 from utils.rag_tool import text_2_vector
 
+# ===============================
+# RAG Tool
+# ===============================
 llm_model = None
 global_index = None
 global_metadata = []
@@ -68,32 +66,6 @@ def init_rag_db():
         print("⚠️ 未解析出QA")
         return global_index, global_metadata
 
-    # ------------------- 彻底修复：init_rag_db内的分词函数（杜绝迭代报错） -------------------
-    def extract_keywords_from_question(question):
-        """仅对question分词，提取核心关键字（过滤无意义词汇）- 彻底修复迭代解包报错"""
-        from jieba import posseg
-        stop_words = ["的", "是", "什么", "如何", "怎么", "哪些", "一个", "用于", "可以", "实现", "如何做", "怎么弄"]
-        # 新增：格式校验+转换，避免传入非字符串（如numpy数组）导致decode报错
-        if not isinstance(question, str):
-            # 若为numpy数组，转为字符串；其他类型直接转为字符串
-            if isinstance(question, np.ndarray):
-                question = question.astype(str).tolist()
-                question = " ".join(question) if isinstance(question, list) else str(question)
-            else:
-                question = str(question)
-        # 双重保障：1. 转为列表 2. 过滤异常值，确保每个元素都是可解包的（word, flag）对
-        words = list(posseg.cut(question))
-        # 过滤无效元素（避免非（word,flag）对导致的解包报错）
-        words = [item for item in words if isinstance(item, tuple) and len(item) == 2]
-        # 可选：打印分词结果，查看是否有异常（注释后不影响功能）
-        # print(f"init分词结果: {words}")
-        keywords = []
-        for word, flag in words:
-            # 额外校验：避免word/flag为空导致的异常
-            if flag.startswith("n") and word and word not in stop_words and len(word) >= 2:
-                keywords.append(word)
-        return list(set(keywords))[:5]
-
     # ------------------------------------------------------------------
 
     # 向量化：question + 提取的关键字（逻辑不变，分词函数已彻底修复）
@@ -102,8 +74,9 @@ def init_rag_db():
     for doc in qa_docs:
         question = doc["question"]
         # 调用彻底修复后的分词函数，杜绝迭代解包报错
-        keywords = extract_keywords_from_question(question)
-        query_text = f"{question} {' '.join(keywords)}"
+        # keywords = extract_keywords_from_question(question)
+        # query_text = f"{question} {' '.join(keywords)}"
+        query_text = f"{question}"
         vector = text_2_vector(query_text, rag_tool)
         vectors.append(vector[0])
 
