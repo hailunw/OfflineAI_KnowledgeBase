@@ -243,15 +243,16 @@ def rag_search(query, embed_model, index, metadata, bm25):
 # 问题改写（保持原逻辑，关闭冗余输出）
 # =========================
 def rewrite_question(llm, q):
-    prompt = f"""Rewrite the question clearly:
-{q}
-Answer:"""
+    # 替换为中文Prompt，输出更符合预期
+    prompt = f"""请将以下问题改写得更清晰、准确，便于检索：
+    {q}
+    改写后的问题："""
     try:
         out = llm.create_completion(
             prompt=prompt,
             max_tokens=32,
             stop=["\n"],  # 防止输出过多
-            echo=False     # 不回显prompt
+            echo=False  # 不回显prompt
         )
         return out["choices"][0]["text"].strip()
     except Exception:
