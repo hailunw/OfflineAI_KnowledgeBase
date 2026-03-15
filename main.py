@@ -5,7 +5,7 @@ import torch
 
 from utils.constants import score_threshold
 from utils.init import init_rag_tool, init_rag_db, init_llm
-from utils.llm import build_query_prompt, build_answer_prompt
+from utils.llm_prompts import build_query_prompt, build_answer_prompt
 from utils.rag_db import rag_retrieval
 from utils.rag_tool import text_2_vector
 
