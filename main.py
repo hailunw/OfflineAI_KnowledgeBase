@@ -215,50 +215,75 @@ def rag_search(query, embed_model, index, metadata, bm25):
     if not query or not metadata or not bm25 or index is None:
         return None
 
-    # ========== 第一步：使用faiss index做向量检索（核心，保留原有逻辑） ==========
+    # ========== 第一步：使用faiss index做向量检索（修复数组处理） ==========
     vec = embed_model.encode(
         [query],
         normalize_embeddings=True
     ).astype("float32")
 
-    # 用faiss index检索前10个候选（保留原有逻辑）
+    # 用faiss index检索前10个候选
     scores, ids = index.search(vec, 10)
+
+    # 关键修复1：将NumPy数组转为普通列表，避免歧义
+    scores = scores[0].tolist()  # 转为列表
+    ids = ids[0].tolist()  # 转为列表
+
     candidates = []
-    candidate_scores = []  # 保存向量相似度分数
-    for score, i in zip(scores[0], ids[0]):
-        if i == -1 or score < score_threshold:  # 阈值过滤
+    candidate_scores = []  # 保存向量相似度分数（普通列表）
+    for score, i in zip(scores, ids):
+        # 关键修复2：增加i的有效性判断（避免负数索引）
+        if i < 0 or i >= len(metadata) or score < score_threshold:
             continue
         candidates.append(metadata[i])
-        candidate_scores.append(score)  # 记录向量分数
+        candidate_scores.append(float(score))  # 确保是普通浮点数
 
-    if not candidates:
+    # 关键修复3：空候选直接返回
+    if not candidates or len(candidate_scores) == 0:
         return None
 
-    # ========== 第二步：BM25重排序（有效利用全局BM25+融合分数） ==========
-    # 1. 对向量候选集做BM25打分（复用全局BM25的分词逻辑）
+    # ========== 第二步：BM25重排序（修复空值/数组问题） ==========
+    # 1. 对向量候选集做BM25打分
     tokenized_query = jieba.lcut(query)
-    # 提取候选集的问题文本，用于BM25打分
     candidate_questions = [c["question"] for c in candidates]
     candidate_corpus = [jieba.lcut(q) for q in candidate_questions]
 
-    # 构建候选集的BM25模型（基于全局BM25的逻辑，而非重新构建全量）
+    # 关键修复4：空语料库判断
+    if not candidate_corpus or all(len(c) == 0 for c in candidate_corpus):
+        return candidates[0]  # 退化为取第一个候选
+
     bm25_local = BM25Okapi(candidate_corpus)
     bm25_scores = bm25_local.get_scores(tokenized_query)
 
-    # 2. 融合向量分数和BM25分数（兼顾语义和词频）
-    # 归一化分数（避免量纲差异）
-    max_vec_score = max(candidate_scores) if candidate_scores else 1
-    max_bm25_score = max(bm25_scores) if bm25_scores else 1
+    # 关键修复5：转为普通列表+空值处理
+    bm25_scores = [float(s) for s in bm25_scores]  # 转为普通列表
+    if len(bm25_scores) == 0:
+        return candidates[0]
+
+    # 2. 融合向量分数和BM25分数（修复归一化除以0）
+    # 关键修复6：避免除以0（加极小值）
+    max_vec_score = max(candidate_scores) if max(candidate_scores) > 0 else 1e-6
+    max_bm25_score = max(bm25_scores) if max(bm25_scores) > 0 else 1e-6
 
     normalized_vec = [s / max_vec_score for s in candidate_scores]
     normalized_bm25 = [s / max_bm25_score for s in bm25_scores]
 
-    # 加权融合（可调整权重，比如向量0.7，BM25 0.3）
+    # 确保长度一致（防御性编程）
+    min_len = min(len(normalized_vec), len(normalized_bm25))
+    normalized_vec = normalized_vec[:min_len]
+    normalized_bm25 = normalized_bm25[:min_len]
+
     combined_scores = [0.7 * v + 0.3 * b for v, b in zip(normalized_vec, normalized_bm25)]
 
-    # ========== 第三步：选择最优结果 ==========
+    # ========== 第三步：选择最优结果（修复空数组） ==========
+    if not combined_scores:
+        return candidates[0]
+
     best_idx = np.argmax(combined_scores)
+    # 关键修复7：索引越界保护
+    best_idx = min(best_idx, len(candidates) - 1)
+
     return candidates[best_idx]
+
 
 # =========================
 # 问题改写（保持原逻辑，关闭冗余输出）
