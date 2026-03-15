@@ -212,32 +212,53 @@ def build_bm25(metadata):
 # RAG检索（保持原逻辑）
 # =========================
 def rag_search(query, embed_model, index, metadata, bm25):
-    if not query or not metadata:
+    if not query or not metadata or not bm25 or index is None:
         return None
 
+    # ========== 第一步：使用faiss index做向量检索（核心，保留原有逻辑） ==========
     vec = embed_model.encode(
         [query],
         normalize_embeddings=True
     ).astype("float32")
 
+    # 用faiss index检索前10个候选（保留原有逻辑）
     scores, ids = index.search(vec, 10)
     candidates = []
-    for i in ids[0]:
-        if i == -1:
+    candidate_scores = []  # 保存向量相似度分数
+    for score, i in zip(scores[0], ids[0]):
+        if i == -1 or score < score_threshold:  # 阈值过滤
             continue
         candidates.append(metadata[i])
+        candidate_scores.append(score)  # 记录向量分数
 
     if not candidates:
         return None
 
-    tokenized = jieba.lcut(query)
-    corpus = [jieba.lcut(c["question"]) for c in candidates]
-    bm25_local = BM25Okapi(corpus)
-    scores = bm25_local.get_scores(tokenized)
-    best = np.argmax(scores)
+    # ========== 第二步：BM25重排序（有效利用全局BM25+融合分数） ==========
+    # 1. 对向量候选集做BM25打分（复用全局BM25的分词逻辑）
+    tokenized_query = jieba.lcut(query)
+    # 提取候选集的问题文本，用于BM25打分
+    candidate_questions = [c["question"] for c in candidates]
+    candidate_corpus = [jieba.lcut(q) for q in candidate_questions]
 
-    return candidates[best]
+    # 构建候选集的BM25模型（基于全局BM25的逻辑，而非重新构建全量）
+    bm25_local = BM25Okapi(candidate_corpus)
+    bm25_scores = bm25_local.get_scores(tokenized_query)
 
+    # 2. 融合向量分数和BM25分数（兼顾语义和词频）
+    # 归一化分数（避免量纲差异）
+    max_vec_score = max(candidate_scores) if candidate_scores else 1
+    max_bm25_score = max(bm25_scores) if bm25_scores else 1
+
+    normalized_vec = [s / max_vec_score for s in candidate_scores]
+    normalized_bm25 = [s / max_bm25_score for s in bm25_scores]
+
+    # 加权融合（可调整权重，比如向量0.7，BM25 0.3）
+    combined_scores = [0.7 * v + 0.3 * b for v, b in zip(normalized_vec, normalized_bm25)]
+
+    # ========== 第三步：选择最优结果 ==========
+    best_idx = np.argmax(combined_scores)
+    return candidates[best_idx]
 
 # =========================
 # 问题改写（保持原逻辑，关闭冗余输出）
