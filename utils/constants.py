@@ -20,6 +20,6 @@ score_threshold = 0.70
 
 markdown_split_pattern = r'标题:\s*(.*?)\n内容:\s*(.*?)(?=\n标题:|\Z)'
 
-cpu_n_threads = os.cpu_count(),
+cpu_n_threads = 6,
 gpu_n_threads = 2
 
